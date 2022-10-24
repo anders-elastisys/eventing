@@ -40,9 +40,10 @@ import (
 // github.com/kelseyhightower/envconfig. If this configuration cannot be extracted, then
 // NewController will panic.
 type envConfig struct {
-	Image      string `envconfig:"APISERVER_RA_IMAGE" required:"true"`
-	RequestCPU string `envconfig:"APISERVER_RA_REQUESTS_CPU" required:"false"`
-	RequestMEM string `envconfig:"APISERVER_RA_REQUESTS_MEM" required:"false"`
+	Image           string `envconfig:"APISERVER_RA_IMAGE" required:"true"`
+	RequestCPU      string `default:"20m" envconfig:"APISERVER_RA_REQUESTS_CPU" required:"false"`
+	RequestMEM      string `default:"10Mi" envconfig:"APISERVER_RA_REQUESTS_MEM" required:"false"`
+	ImagePullSecret string `default:"" envconfig:"APISERVER_RA_PULLSECRET" required:"false"`
 }
 
 // NewController initializes the controller and is called by the generated code
@@ -68,13 +69,7 @@ func NewController(
 	r.receiveAdapterImage = env.Image
 	r.receiveAdapterRequestCPU = env.RequestCPU
 	r.receiveAdapterRequestMEM = env.RequestMEM
-
-	if env.RequestCPU == "foobar" {
-		r.receiveAdapterRequestCPU = "20m"
-	}
-	if env.RequestMEM == "foobar" {
-		r.receiveAdapterRequestMEM = "20Mi"
-	}
+	r.receiveAdapterPullSecret = env.ImagePullSecret
 
 	impl := apiserversourcereconciler.NewImpl(ctx, r)
 

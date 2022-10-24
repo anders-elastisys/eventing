@@ -45,6 +45,7 @@ type ReceiveAdapterArgs struct {
 	Image      string
 	RequestCPU string
 	RequestMEM string
+	PullSecret string
 	Source     *v1.ApiServerSource
 	Labels     map[string]string
 	SinkURI    string
@@ -61,7 +62,7 @@ func MakeReceiveAdapter(args *ReceiveAdapterArgs) (*appsv1.Deployment, error) {
 		return nil, fmt.Errorf("error generating env vars: %w", err)
 	}
 
-	return &appsv1.Deployment{
+	deploy := &appsv1.Deployment{
 		ObjectMeta: metav1.ObjectMeta{
 			Namespace: args.Source.Namespace,
 			Name:      kmeta.ChildName(fmt.Sprintf("apiserversource-%s-", args.Source.Name), string(args.Source.GetUID())),
@@ -119,7 +120,13 @@ func MakeReceiveAdapter(args *ReceiveAdapterArgs) (*appsv1.Deployment, error) {
 				},
 			},
 		},
-	}, nil
+	}
+	if args.PullSecret != "" {
+		deploy.Spec.Template.Spec.ImagePullSecrets = []corev1.LocalObjectReference{{
+			Name: args.PullSecret,
+		}}
+	}
+	return deploy, nil
 }
 
 func makeEnv(args *ReceiveAdapterArgs) ([]corev1.EnvVar, error) {

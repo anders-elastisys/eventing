@@ -65,9 +65,9 @@ type Reconciler struct {
 	receiveAdapterImage      string
 	receiveAdapterRequestCPU string
 	receiveAdapterRequestMEM string
-
-	ceSource     string
-	sinkResolver *resolver.URIResolver
+	receiveAdapterPullSecret string
+	ceSource                 string
+	sinkResolver             *resolver.URIResolver
 
 	configs reconcilersource.ConfigAccessor
 }
@@ -133,6 +133,7 @@ func (r *Reconciler) createReceiveAdapter(ctx context.Context, src *v1.ApiServer
 		RequestCPU: r.receiveAdapterRequestCPU,
 		RequestMEM: r.receiveAdapterRequestMEM,
 		Image:      r.receiveAdapterImage,
+		PullSecret: r.receiveAdapterPullSecret,
 		Source:     src,
 		Labels:     resources.Labels(src.Name),
 		SinkURI:    sinkURI,
