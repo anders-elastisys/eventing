@@ -107,16 +107,6 @@ func MakeReceiveAdapter(args *ReceiveAdapterArgs) (*appsv1.Deployment, error) {
 									},
 								},
 							},
-							Resources: corev1.ResourceRequirements{
-								Limits: corev1.ResourceList{
-									corev1.ResourceCPU:    resource.MustParse("20m"),
-									corev1.ResourceMemory: resource.MustParse("20Mi"),
-								},
-								Requests: corev1.ResourceList{
-									corev1.ResourceCPU:    resource.MustParse(args.RequestCPU),
-									corev1.ResourceMemory: resource.MustParse(args.RequestMEM),
-								},
-							},
 						},
 					},
 				},
@@ -128,21 +118,18 @@ func MakeReceiveAdapter(args *ReceiveAdapterArgs) (*appsv1.Deployment, error) {
 			Name: args.PullSecret,
 		}}
 	}
-	if args.LimitCPU != "" {
-		deploy.Spec.Template.Spec.Containers[0].Resources.Limits.Cpu().Reset()
-		deploy.Spec.Template.Spec.Containers[0].Resources.Limits.Cpu().Add(resource.MustParse(args.LimitCPU))
+
+	if args.LimitCPU != "" && args.LimitMEM != "" {
+		deploy.Spec.Template.Spec.Containers[0].Resources.Limits = corev1.ResourceList{
+			corev1.ResourceCPU:    resource.MustParse(args.LimitCPU),
+			corev1.ResourceMemory: resource.MustParse(args.LimitMEM),
+		}
 	}
-	if args.LimitMEM != "" {
-		deploy.Spec.Template.Spec.Containers[0].Resources.Limits.Memory().Reset()
-		deploy.Spec.Template.Spec.Containers[0].Resources.Limits.Memory().Add(resource.MustParse(args.LimitMEM))
-	}
-	if args.RequestCPU != "" {
-		deploy.Spec.Template.Spec.Containers[0].Resources.Requests.Cpu().Reset()
-		deploy.Spec.Template.Spec.Containers[0].Resources.Requests.Cpu().Add(resource.MustParse(args.RequestCPU))
-	}
-	if args.RequestMEM != "" {
-		deploy.Spec.Template.Spec.Containers[0].Resources.Requests.Memory().Reset()
-		deploy.Spec.Template.Spec.Containers[0].Resources.Requests.Memory().Add(resource.MustParse(args.RequestMEM))
+	if args.RequestCPU != "" && args.RequestMEM != "" {
+		deploy.Spec.Template.Spec.Containers[0].Resources.Requests = corev1.ResourceList{
+			corev1.ResourceCPU:    resource.MustParse(args.RequestCPU),
+			corev1.ResourceMemory: resource.MustParse(args.RequestMEM),
+		}
 	}
 	return deploy, nil
 }
