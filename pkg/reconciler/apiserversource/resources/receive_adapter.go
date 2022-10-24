@@ -101,6 +101,16 @@ func MakeReceiveAdapter(args *ReceiveAdapterArgs) (*appsv1.Deployment, error) {
 									},
 								},
 							},
+							Resources: corev1.ResourceRequirements{
+								Limits: corev1.ResourceList{
+									corev1.ResourceCPU: resource.MustParse("100m"),
+									corev1.ResourceMemory: resource.MustParse("20Mi"),
+								  },
+								  Requests: corev1.ResourceList{
+									corev1.ResourceCPU: resource.MustParse("20m"),
+									corev1.ResourceMemory: resource.MustParse("10Mi"),
+								  },
+							},
 						},
 					},
 				},
