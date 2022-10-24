@@ -41,8 +41,10 @@ import (
 // NewController will panic.
 type envConfig struct {
 	Image           string `envconfig:"APISERVER_RA_IMAGE" required:"true"`
-	RequestCPU      string `default:"20m" envconfig:"APISERVER_RA_REQUESTS_CPU" required:"false"`
-	RequestMEM      string `default:"10Mi" envconfig:"APISERVER_RA_REQUESTS_MEM" required:"false"`
+	RequestCPU      string `default:"" envconfig:"APISERVER_RA_REQUESTS_CPU" required:"false"`
+	RequestMEM      string `default:"" envconfig:"APISERVER_RA_REQUESTS_MEM" required:"false"`
+	LimitCPU        string `default:"" envconfig:"APISERVER_RA_LIMITS_CPU" required:"false"`
+	LimitMEM        string `default:"" envconfig:"APISERVER_RA_LIMITS_MEM" required:"false"`
 	ImagePullSecret string `default:"" envconfig:"APISERVER_RA_PULLSECRET" required:"false"`
 }
 
@@ -69,6 +71,8 @@ func NewController(
 	r.receiveAdapterImage = env.Image
 	r.receiveAdapterRequestCPU = env.RequestCPU
 	r.receiveAdapterRequestMEM = env.RequestMEM
+	r.receiveAdapterLimitCPU = env.LimitCPU
+	r.receiveAdapterLimitMEM = env.LimitMEM
 	r.receiveAdapterPullSecret = env.ImagePullSecret
 
 	impl := apiserversourcereconciler.NewImpl(ctx, r)
