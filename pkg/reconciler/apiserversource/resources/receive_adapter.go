@@ -25,6 +25,7 @@ import (
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/meta"
+	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/util/intstr"
@@ -41,11 +42,13 @@ import (
 // ReceiveAdapterArgs are the arguments needed to create a ApiServer Receive Adapter.
 // Every field is required.
 type ReceiveAdapterArgs struct {
-	Image   string
-	Source  *v1.ApiServerSource
-	Labels  map[string]string
-	SinkURI string
-	Configs reconcilersource.ConfigAccessor
+	Image      string
+	RequestCPU string
+	RequestMEM string
+	Source     *v1.ApiServerSource
+	Labels     map[string]string
+	SinkURI    string
+	Configs    reconcilersource.ConfigAccessor
 }
 
 // MakeReceiveAdapter generates (but does not insert into K8s) the Receive Adapter Deployment for
@@ -103,13 +106,13 @@ func MakeReceiveAdapter(args *ReceiveAdapterArgs) (*appsv1.Deployment, error) {
 							},
 							Resources: corev1.ResourceRequirements{
 								Limits: corev1.ResourceList{
-									corev1.ResourceCPU: resource.MustParse("100m"),
+									corev1.ResourceCPU:    resource.MustParse("100m"),
 									corev1.ResourceMemory: resource.MustParse("20Mi"),
-								  },
-								  Requests: corev1.ResourceList{
-									corev1.ResourceCPU: resource.MustParse("20m"),
-									corev1.ResourceMemory: resource.MustParse("10Mi"),
-								  },
+								},
+								Requests: corev1.ResourceList{
+									corev1.ResourceCPU:    resource.MustParse(args.RequestCPU),
+									corev1.ResourceMemory: resource.MustParse(args.RequestMEM),
+								},
 							},
 						},
 					},

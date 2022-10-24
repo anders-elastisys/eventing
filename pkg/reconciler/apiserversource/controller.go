@@ -40,7 +40,9 @@ import (
 // github.com/kelseyhightower/envconfig. If this configuration cannot be extracted, then
 // NewController will panic.
 type envConfig struct {
-	Image string `envconfig:"APISERVER_RA_IMAGE" required:"true"`
+	Image      string `envconfig:"APISERVER_RA_IMAGE" required:"true"`
+	RequestCPU string `envconfig:"APISERVER_RA_REQUESTS_CPU" required:"false"`
+	RequestMEM string `envconfig:"APISERVER_RA_REQUESTS_MEM" required:"false"`
 }
 
 // NewController initializes the controller and is called by the generated code
@@ -64,6 +66,15 @@ func NewController(
 		logging.FromContext(ctx).Panicf("unable to process APIServerSource's required environment variables: %v", err)
 	}
 	r.receiveAdapterImage = env.Image
+	r.receiveAdapterRequestCPU = env.RequestCPU
+	r.receiveAdapterRequestMEM = env.RequestMEM
+
+	if env.RequestCPU == "foobar" {
+		r.receiveAdapterRequestCPU = "20m"
+	}
+	if env.RequestMEM == "foobar" {
+		r.receiveAdapterRequestMEM = "20Mi"
+	}
 
 	impl := apiserversourcereconciler.NewImpl(ctx, r)
 

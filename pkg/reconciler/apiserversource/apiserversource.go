@@ -62,7 +62,9 @@ func newWarningSinkNotFound(sink *duckv1.Destination) pkgreconciler.Event {
 type Reconciler struct {
 	kubeClientSet kubernetes.Interface
 
-	receiveAdapterImage string
+	receiveAdapterImage      string
+	receiveAdapterRequestCPU string
+	receiveAdapterRequestMEM string
 
 	ceSource     string
 	sinkResolver *resolver.URIResolver
@@ -128,11 +130,13 @@ func (r *Reconciler) createReceiveAdapter(ctx context.Context, src *v1.ApiServer
 	// }
 
 	adapterArgs := resources.ReceiveAdapterArgs{
-		Image:   r.receiveAdapterImage,
-		Source:  src,
-		Labels:  resources.Labels(src.Name),
-		SinkURI: sinkURI,
-		Configs: r.configs,
+		RequestCPU: r.receiveAdapterRequestCPU,
+		RequestMEM: r.receiveAdapterRequestMEM,
+		Image:      r.receiveAdapterImage,
+		Source:     src,
+		Labels:     resources.Labels(src.Name),
+		SinkURI:    sinkURI,
+		Configs:    r.configs,
 	}
 	expected, err := resources.MakeReceiveAdapter(&adapterArgs)
 	if err != nil {
